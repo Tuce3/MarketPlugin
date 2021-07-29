@@ -1,5 +1,6 @@
 package me.tuce.firstplugin.commands;
 
+import me.tuce.firstplugin.helper.InputCheck;
 import me.tuce.firstplugin.helper.TakeItems;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,47 +16,46 @@ import org.bukkit.inventory.ItemStack;
 
 public class SellItem implements CommandExecutor {
     ItemsOnSale itemsOnSale = new ItemsOnSale();
+    final static int MIN_ARGS = 3;
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if(commandSender instanceof Player){
             Player player = (Player)commandSender;
 
-            player.sendMessage(s);
-
-            // Check whether player has inputted count of item to sell properly
-            int sellItemCount = 1;
-            try{
-                sellItemCount = Integer.parseInt(args[0]);
-            }
-            catch (NumberFormatException ex){
-                player.sendMessage(ChatColor.YELLOW + "[Market]" + ChatColor.WHITE + " You didn't input count number correctly");
-                //System.out.println(player.getName() + " didn't input number correctly");
+            if (args.length < MIN_ARGS){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You haven't entered enough arguments!"
+                );
                 return false;
             }
-            catch (Exception e){
-                e.printStackTrace();
+
+            // Check whether player has inputted count of item to sell properly
+            int sellItemCount = InputCheck.checkAmount(args[0]);
+            if (sellItemCount < 1){
+                player.sendMessage(ChatColor.YELLOW + "[Market]" + ChatColor.WHITE + " You didn't input count number correctly");
+                return false;
+            }
+
+            // Check whether player has inputted selling item correctly
+            Material material = InputCheck.checkMaterial(args[1]);
+            if (material == Material.AIR){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You didn't input name of item to sell correctly!"
+                );
                 return false;
             }
 
             // Check whether player has inputted sell price correctly
-            int sellPrice = 1;
-            try{
-                sellPrice = Integer.parseInt(args[2]);
-            }
-            catch (NumberFormatException ex){
+            int sellPrice = InputCheck.checkAmount(args[2]);
+            if (sellPrice < 1){
                 player.sendMessage(ChatColor.YELLOW + "[Market]" + ChatColor.WHITE + " You didn't input sell price correctly");
-                return false;
-            }
-            catch (Exception e){
-                e.printStackTrace();
                 return false;
             }
 
             Inventory inventory = player.getInventory();
-            Material material = Material.valueOf(args[1].toUpperCase());
-
-            System.out.println("before checking command name");
 
             // Check whether player wants to sell stack of item
             int stack = 1;

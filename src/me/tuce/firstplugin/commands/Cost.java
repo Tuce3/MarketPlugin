@@ -1,6 +1,7 @@
 package me.tuce.firstplugin.commands;
 
 import me.tuce.firstplugin.SellingItem;
+import me.tuce.firstplugin.helper.InputCheck;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -14,12 +15,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Cost implements CommandExecutor {
+    final static int MIN_ARGS = 1;
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (commandSender instanceof Player){
             Player player = (Player)commandSender;
-            Material key = Material.valueOf(args[0].toUpperCase());
+
+            if (args.length < MIN_ARGS){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You haven't entered enough arguments!"
+                );
+                return false;
+            }
+
+            Material key = InputCheck.checkMaterial(args[0]);
+            if (key == Material.AIR){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You didn't input name of item correctly!"
+                );
+                return false;
+            }
 
             // Get all items sold on the market
             HashMap<Material, ArrayList<SellingItem>> map = ItemsOnSale.map;

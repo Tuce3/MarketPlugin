@@ -4,6 +4,7 @@ import me.tuce.firstplugin.ItemsOnSale;
 import me.tuce.firstplugin.SellingItem;
 import me.tuce.firstplugin.helper.CheckInventorySpace;
 import me.tuce.firstplugin.helper.GiveItems;
+import me.tuce.firstplugin.helper.InputCheck;
 import me.tuce.firstplugin.helper.TakeItems;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,28 +18,31 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 public class Buy implements CommandExecutor {
+    final static int MIN_ARGS = 2;
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (commandSender instanceof Player){
             Player player = (Player)commandSender;
 
-            // Check whether player entered valid amount of items to buy
-            int amountToBuy;
-            try{
-                amountToBuy = Integer.parseInt(args[0]);
+            if (args.length < MIN_ARGS){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You haven't entered enough arguments!"
+                );
+                return false;
             }
-            catch (NumberFormatException ex){
+
+            // Check whether player entered valid amount of items to buy
+            int amountToBuy = InputCheck.checkAmount(args[0]);
+            if (amountToBuy < 1){
                 player.sendMessage(ChatColor.YELLOW + "[Market] " +
                         ChatColor.WHITE + "You entered an invalid amount of items to buy!");
                 return false;
             }
 
             // Check whether player entered valid name of item
-            Material material;
-            try{
-                material = Material.valueOf(args[1].toUpperCase());
-            }
-            catch (IllegalArgumentException argumentException){
+            Material material = InputCheck.checkMaterial(args[1]);
+            if (material == Material.AIR){
                 player.sendMessage(ChatColor.YELLOW + "[Market] " +
                         ChatColor.WHITE + "You entered an invalid name for item.");
                 return false;
