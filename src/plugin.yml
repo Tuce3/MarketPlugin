@@ -1,0 +1,21 @@
+name: FirstPlugin
+version: 1.2
+author: Tuce
+main: me.tuce.firstplugin.Main
+api-version: 1.17
+commands:
+  sell:
+    description: Puts item on sale
+    usage: /<command> [CountOfItem] [ItemName] [Cost]
+  sellstack:
+    description: Puts item on sale in full stacks
+    usage: /<command> [CountOfStacks] [ItemName] [Cost]
+  sellhstack:
+    description: Puts item on sale in half stacks
+    usage: /<command> [CountOfStacks] [ItemName] [Cost]
+  cost:
+    description: Shows the least expensive item on sale
+    usage: /<command> [ItemName]
+  buy:
+    description: Buys the least expensive item on sale
+    usage: /<command> [CountOfItem] [ItemName] [stack/halfstack](default stack)
