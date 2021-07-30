@@ -19,11 +19,11 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable(){
-        
+
         createCustomConfig();
-        
+
         // Set command executors
-        SellItem sellItem = new SellItem(this);
+        SellItem sellItem = new SellItem();
         this.getCommand("sell").setExecutor(sellItem);
         this.getCommand("sellstack").setExecutor(sellItem);
         this.getCommand("sellhstack").setExecutor(sellItem);
@@ -49,4 +49,4 @@ public class Main extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
     }
-}
+}}
