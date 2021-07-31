@@ -55,6 +55,25 @@ public class SellItem implements CommandExecutor {
                 return false;
             }
 
+            Material sellMaterial = Material.DIAMOND;
+            if (args.length > 3){
+                Material materialCheck = InputCheck.checkMaterial(args[3]);
+                if (materialCheck == Material.DIAMOND_BLOCK || materialCheck == Material.DIAMOND){
+                    sellMaterial = materialCheck;
+                }
+                else{
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market] " +
+                                    ChatColor.WHITE + "Only " +
+                                    ChatColor.BLUE + "DIAMONDS " +
+                                    ChatColor.WHITE + "and " +
+                                    ChatColor.BLUE + "DIAMOND_BLOCKS " +
+                                    ChatColor.WHITE + "are accepted as price!"
+                    );
+                    return false;
+                }
+            }
+
             Inventory inventory = player.getInventory();
 
             // Check whether player wants to sell stack of item
@@ -84,7 +103,7 @@ public class SellItem implements CommandExecutor {
             if (inventory.contains(material, sellItemCount * stack)){
                 System.out.println("Entered if ");
 
-                SellingItem sellingItem = new SellingItem(player.getName(), material, sellItemCount, Material.DIAMOND, sellPrice, stack);
+                SellingItem sellingItem = new SellingItem(player.getName(), material, sellItemCount, sellMaterial, sellPrice, stack);
 
                 // Remove items that player wants to sell from his inventory
                 TakeItems.take(inventory, material, sellItemCount * stack);
