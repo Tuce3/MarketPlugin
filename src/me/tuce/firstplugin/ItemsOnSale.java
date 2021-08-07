@@ -14,7 +14,9 @@ public class ItemsOnSale {
     Comparator<SellingItem> smallestPrice = new Comparator<SellingItem>() {
         @Override
         public int compare(SellingItem o1, SellingItem o2) {
-            return Integer.compare(o1.priceAmount, o2.priceAmount);
+            int price1 = (o1.priceItem == Material.DIAMOND_BLOCK) ? o1.priceAmount * 9 : o1.priceAmount;
+            int price2 = (o2.priceItem == Material.DIAMOND_BLOCK) ? o2.priceAmount * 9 : o2.priceAmount;
+            return Integer.compare(price1, price2);
         }
     };
 
