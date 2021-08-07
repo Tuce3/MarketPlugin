@@ -140,6 +140,8 @@ public class Buy implements CommandExecutor {
                 return true;
             }
 
+            System.out.println(cost.diamond + " " + cost.diamond_block);
+
             // Check whether player has enough amount to buy items and inventory space
             if (player.getInventory().contains(Material.DIAMOND, cost.diamond) && player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block)){
                 boolean hasSpace = CheckInventorySpace.checkSpace(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
@@ -172,15 +174,52 @@ public class Buy implements CommandExecutor {
                     GiveItems.give(seller.getInventory(), Material.DIAMOND_BLOCK, entry.getValue().diamond_block);
                 }
 
+                // Check whether player paid in diamonds or diamond_blocks or both
+                String paid = "";
+                if (cost.diamond > 0 && cost.diamond_block > 0)
+                    paid = paid + cost.diamond + " " + Material.DIAMOND + ChatColor.WHITE + " and " + ChatColor.BLUE + cost.diamond_block + " " + Material.DIAMOND_BLOCK;
+                else if(cost.diamond > 0)
+                    paid = paid + cost.diamond + " " + Material.DIAMOND;
+                else
+                    paid = paid + cost.diamond_block + " " + Material.DIAMOND_BLOCK;
+
                 // Tell player what he bought and for how much
                 player.sendMessage(
                         ChatColor.YELLOW + "[Market] " +
                                 ChatColor.WHITE + "You bought " +
                                 ChatColor.GREEN + ENTERED_AMOUNT_TO_BUY + " " + material +
                                 ChatColor.WHITE + " for " +
-                                ChatColor.BLUE + cost + " " + Material.DIAMOND +
+                                ChatColor.BLUE + paid +
                                 ChatColor.WHITE + "!"
                 );
+            }
+            else{
+                if (!player.getInventory().contains(Material.DIAMOND, cost.diamond) && !player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block)){
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market] " +
+                                    ChatColor.WHITE + "You don't have enough " +
+                                    ChatColor.BLUE + Material.DIAMOND +
+                                    ChatColor.WHITE + " and " +
+                                    ChatColor.BLUE + Material.DIAMOND_BLOCK +
+                                    ChatColor.WHITE + "!"
+                    );
+                }
+                else if(!player.getInventory().contains(Material.DIAMOND, cost.diamond)){
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market] " +
+                                    ChatColor.WHITE + "You don't have enough " +
+                                    ChatColor.BLUE + Material.DIAMOND +
+                                    ChatColor.WHITE + "!"
+                    );
+                }
+                else{
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market] " +
+                                    ChatColor.WHITE + "You don't have enough " +
+                                    ChatColor.BLUE + Material.DIAMOND_BLOCK +
+                                    ChatColor.WHITE + "!"
+                    );
+                }
             }
             return true;
         }
