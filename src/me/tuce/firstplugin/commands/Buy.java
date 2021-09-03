@@ -2,10 +2,7 @@ package me.tuce.firstplugin.commands;
 
 import me.tuce.firstplugin.ItemsOnSale;
 import me.tuce.firstplugin.SellingItem;
-import me.tuce.firstplugin.helper.CheckInventorySpace;
-import me.tuce.firstplugin.helper.GiveItems;
-import me.tuce.firstplugin.helper.InputCheck;
-import me.tuce.firstplugin.helper.TakeItems;
+import me.tuce.firstplugin.helper.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -49,16 +46,19 @@ public class Buy implements CommandExecutor {
             }
 
             // Get the cost of items and whether there are enough items on market
-            int cost = 0;
+            PriceToPay cost = new PriceToPay(0, 0);
             ItemStack itemStack = new ItemStack(material);
             int stack  = itemStack.getMaxStackSize();
             if (args.length > 2){
-                if (args[2].equals("halfstack"))
+                if (args[2].equals("halfstack")) {
+                    if (stack <= 1)
+                        return false;
                     stack /= 2;
+                }
             }
 
             final int ENTERED_AMOUNT_TO_BUY = amountToBuy;
-            HashMap<String, Integer> sellers = new HashMap<>();
+            HashMap<String, PriceToPay> sellers = new HashMap<>();
             if (ItemsOnSale.map.containsKey(material)){
                 // Get how much you need to pay each seller
                 ArrayList<SellingItem> list = ItemsOnSale.map.get(material);
@@ -67,7 +67,7 @@ public class Buy implements CommandExecutor {
                 while (it.hasNext()){
                     SellingItem item = it.next();
                     if (!sellers.containsKey(item.name))
-                        sellers.put(item.name, 0);
+                        sellers.put(item.name, new PriceToPay(0, 0));
 
                     // Multipliers used to convert prices and amount of half stacks to full stacks and other way around
                     float stackMultiplier = (float) item.stack/stack;
@@ -88,22 +88,32 @@ public class Buy implements CommandExecutor {
 
                     // How much items to take and how much to pay
                     if (amount >= amountToBuy){
-                        int increase;
+                        PriceToPay increase = new PriceToPay(0, 0);
                         if (buyMultiplier == 0.5 && amountToBuy % 2 == 1) {
-                            increase = (int) (item.priceAmount * (amountToBuy - 1) * buyMultiplier);
+                            if (item.priceItem == Material.DIAMOND)
+                                increase.diamond = (int) (item.priceAmount * (amountToBuy - 1) * buyMultiplier);
+                            else
+                                increase.diamond_block = (int) (item.priceAmount * (amountToBuy - 1) * buyMultiplier);
                             amountToBuy = 1;
                         }
                         else {
-                            increase = (int) (item.priceAmount * amountToBuy * buyMultiplier);
+                            if (item.priceItem == Material.DIAMOND)
+                                increase.diamond = (int) (item.priceAmount * amountToBuy * buyMultiplier);
+                            else
+                                increase.diamond_block = (int) (item.priceAmount * amountToBuy * buyMultiplier);
                             amountToBuy = 0;
                         }
-                        sellers.put(item.name, sellers.get(item.name) + increase);
-                        cost += increase;
+                        sellers.put(item.name, PriceToPay.add(sellers.get(item.name), increase));
+                        cost = PriceToPay.add(cost, increase);
                     }
                     else{
-                        int increase = item.priceAmount * item.amount;
-                        sellers.put(item.name, sellers.get(item.name) + increase);
-                        cost += increase;
+                        PriceToPay increase;
+                        if (item.priceItem == Material.DIAMOND)
+                            increase = new PriceToPay(item.priceAmount * item.amount, 0);
+                        else
+                            increase = new PriceToPay(0, item.priceAmount * item.amount);
+                        sellers.put(item.name, PriceToPay.add(sellers.get(item.name), increase));
+                        cost = PriceToPay.add(cost, increase);
                         amountToBuy -= amount;
                     }
                     if (amountToBuy == 0)
@@ -123,7 +133,7 @@ public class Buy implements CommandExecutor {
                 }
             }
             else{
-                // Tell player there aren't enough items in stock
+                // Tell player there aren't any items in stock
                 player.sendMessage(
                         ChatColor.YELLOW + "[Market] " +
                                 ChatColor.WHITE + "No one is selling " +
@@ -133,48 +143,120 @@ public class Buy implements CommandExecutor {
                 return true;
             }
 
-            // Check whether player has enough amount to buy items and inventory space
-            if (player.getInventory().contains(Material.DIAMOND, cost)){
-                boolean hasSpace = CheckInventorySpace.checkSpace(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
+            System.out.println(cost.diamond + " " + cost.diamond_block);
 
-                // Tell player that he doesn't have enough inventory space
-                if (!hasSpace){
+            // Check whether player has enough amount to buy items and inventory space
+            if (player.getInventory().contains(Material.DIAMOND, cost.diamond) && player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block)){
+                buy(player, material, ENTERED_AMOUNT_TO_BUY, stack, cost, sellers);
+                return true;
+            }
+            else{
+                final boolean hasEnoughDiamonds = player.getInventory().contains(Material.DIAMOND, cost.diamond);
+                final boolean hasEnoughDiamondBlocks = player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block);
+                if (!hasEnoughDiamonds && !hasEnoughDiamondBlocks){
                     player.sendMessage(
                             ChatColor.YELLOW + "[Market] " +
-                                    ChatColor.WHITE + "You don't have enough inventory space!"
+                                    ChatColor.WHITE + "You don't have enough " +
+                                    ChatColor.BLUE + Material.DIAMOND +
+                                    ChatColor.WHITE + " and " +
+                                    ChatColor.BLUE + Material.DIAMOND_BLOCK +
+                                    ChatColor.WHITE + "!"
                     );
-                    return true;
                 }
+                else if(!hasEnoughDiamonds){
+                    // player might have enough diamond_blocks
+                    // Amount of diamonds must be dividable by 9
+                    if(hasEnoughDiamondBlocks && cost.diamond % 9 == 0){
+                        // Transfer diamonds to blocks
+                        cost.diamond_block += cost.diamond / 9;
+                        cost.diamond = 0;
+                    }
 
-                // Give buyer items
-                GiveItems.give(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
+                    if(player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block)){
+                        buy(player, material, ENTERED_AMOUNT_TO_BUY, stack, cost, sellers);
+                        return true;
+                    }
 
-                // Take buyer's diamonds/diamond_blocks
-                TakeItems.take(player.getInventory(), Material.DIAMOND, cost);
-
-                // Remove items from sale
-                ItemsOnSale.removeItemFromSale(material, ENTERED_AMOUNT_TO_BUY, stack);
-
-                // Give sellers their diamonds/diamond_blocks
-                for (HashMap.Entry<String, Integer> entry : sellers.entrySet()){
-                    Player seller = Bukkit.getPlayer(entry.getKey());
-                    if (seller == null)
-                        continue;
-                    GiveItems.give(seller.getInventory(), Material.DIAMOND, entry.getValue());
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market] " +
+                                    ChatColor.WHITE + "You don't have enough " +
+                                    ChatColor.BLUE + Material.DIAMOND +
+                                    ChatColor.WHITE + "!"
+                    );
                 }
+                else{
+                    // player might have enough diamonds
+                    if(hasEnoughDiamonds){
+                        // Transfer diamond_blocks to diamonds
+                        cost.diamond += cost.diamond_block * 9;
+                        cost.diamond_block = 0;
+                    }
 
-                // Tell player what he bought and for how much
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You bought " +
-                                ChatColor.GREEN + ENTERED_AMOUNT_TO_BUY + " " + material +
-                                ChatColor.WHITE + " for " +
-                                ChatColor.BLUE + cost + " " + Material.DIAMOND +
-                                ChatColor.WHITE + "!"
-                );
+                    if(player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block)){
+                        buy(player, material, ENTERED_AMOUNT_TO_BUY, stack, cost, sellers);
+                        return true;
+                    }
+
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market] " +
+                                    ChatColor.WHITE + "You don't have enough " +
+                                    ChatColor.BLUE + Material.DIAMOND_BLOCK +
+                                    ChatColor.WHITE + "!"
+                    );
+                }
             }
             return true;
         }
         return false;
+    }
+
+    private void buy(Player player, Material material, int ENTERED_AMOUNT_TO_BUY, int stack, PriceToPay cost, HashMap<String, PriceToPay> sellers){
+        boolean hasSpace = CheckInventorySpace.checkSpace(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
+
+        // Tell player that he doesn't have enough inventory space
+        if (!hasSpace){
+            player.sendMessage(
+                    ChatColor.YELLOW + "[Market] " +
+                            ChatColor.WHITE + "You don't have enough inventory space!"
+            );
+        }
+
+        // Give buyer items
+        GiveItems.give(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
+
+        // Take buyer's diamonds/diamond_blocks
+        TakeItems.take(player.getInventory(), Material.DIAMOND, cost.diamond);
+        TakeItems.take(player.getInventory(), Material.DIAMOND_BLOCK, cost.diamond_block);
+
+        // Remove items from sale
+        ItemsOnSale.removeItemFromSale(material, ENTERED_AMOUNT_TO_BUY, stack);
+
+        // Give sellers their diamonds/diamond_blocks
+        for (HashMap.Entry<String, PriceToPay> entry : sellers.entrySet()){
+            Player seller = Bukkit.getPlayer(entry.getKey());
+            if (seller == null)
+                continue;
+            GiveItems.give(seller.getInventory(), Material.DIAMOND, entry.getValue().diamond);
+            GiveItems.give(seller.getInventory(), Material.DIAMOND_BLOCK, entry.getValue().diamond_block);
+        }
+
+        // Check whether player paid in diamonds or diamond_blocks or both
+        String paid = "";
+        if (cost.diamond > 0 && cost.diamond_block > 0)
+            paid = paid + cost.diamond + " " + Material.DIAMOND + ChatColor.WHITE + " and " + ChatColor.BLUE + cost.diamond_block + " " + Material.DIAMOND_BLOCK;
+        else if(cost.diamond > 0)
+            paid = paid + cost.diamond + " " + Material.DIAMOND;
+        else
+            paid = paid + cost.diamond_block + " " + Material.DIAMOND_BLOCK;
+
+        // Tell player what he bought and for how much
+        player.sendMessage(
+                ChatColor.YELLOW + "[Market] " +
+                        ChatColor.WHITE + "You bought " +
+                        ChatColor.GREEN + ENTERED_AMOUNT_TO_BUY + " " + material +
+                        ChatColor.WHITE + " for " +
+                        ChatColor.BLUE + paid +
+                        ChatColor.WHITE + "!"
+        );
     }
 }
