@@ -55,8 +55,8 @@ public class SellItem implements CommandExecutor {
             if (blacklist.contains(material.name())){
                 player.sendMessage(
                         ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You can't sell " +
-                                ChatColor.BLUE + material
+                                ChatColor.BLUE + material +
+                                ChatColor.WHITE + " can't be sold."
                 );
                 return true;
             }
