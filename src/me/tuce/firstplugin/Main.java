@@ -25,7 +25,6 @@ public class Main extends JavaPlugin implements Listener {
         // Set command executors
         SellItem sellItem = new SellItem();
         this.getCommand("sell").setExecutor(sellItem);
-        this.getCommand("sellstack").setExecutor(sellItem);
         this.getCommand("sellhstack").setExecutor(sellItem);
         this.getCommand("cost").setExecutor(new Cost());
         this.getCommand("buy").setExecutor(new Buy());

@@ -77,14 +77,11 @@ public class SellItem implements CommandExecutor {
             Inventory inventory = player.getInventory();
 
             // Check whether player wants to sell stack of item
-            int stack = 1;
             ItemStack itemStack = new ItemStack(material);
             final int MAX_STACK = itemStack.getMaxStackSize();
+            int stack = MAX_STACK;
 
-            if (s.equals("sellstack"))
-                stack = MAX_STACK;
-
-            else if (s.equals("sellhstack") && MAX_STACK > 1)
+            if (s.equals("sellhstack") && MAX_STACK > 1)
                 stack = MAX_STACK / 2;
 
             else if (s.equals("sellhstack")){
