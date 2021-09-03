@@ -23,7 +23,7 @@ public class Main extends JavaPlugin implements Listener {
         createCustomConfig();
 
         // Set command executors
-        SellItem sellItem = new SellItem();
+        SellItem sellItem = new SellItem(this);
         this.getCommand("sell").setExecutor(sellItem);
         this.getCommand("sellhstack").setExecutor(sellItem);
         this.getCommand("cost").setExecutor(new Cost());

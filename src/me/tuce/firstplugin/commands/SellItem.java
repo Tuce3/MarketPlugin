@@ -1,5 +1,6 @@
 package me.tuce.firstplugin.commands;
 
+import me.tuce.firstplugin.Main;
 import me.tuce.firstplugin.helper.InputCheck;
 import me.tuce.firstplugin.helper.TakeItems;
 import org.bukkit.ChatColor;
@@ -14,9 +15,19 @@ import me.tuce.firstplugin.ItemsOnSale;
 import me.tuce.firstplugin.SellingItem;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
 public class SellItem implements CommandExecutor {
     ItemsOnSale itemsOnSale = new ItemsOnSale();
     final static int MIN_ARGS = 3;
+
+
+    private final Main plugin;
+    public SellItem(Main plugin){
+        this.plugin = plugin;
+    }
+
+
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
@@ -40,6 +51,15 @@ public class SellItem implements CommandExecutor {
 
             // Check whether player has inputted selling item correctly
             Material material = InputCheck.checkMaterial(args[1]);
+            List<?> blacklist = plugin.getCustomConfig().getList("blacklist");
+            if (blacklist.contains(material.name())){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You can't sell " +
+                                ChatColor.BLUE + material
+                );
+                return true;
+            }
             if (material == Material.AIR){
                 player.sendMessage(
                         ChatColor.YELLOW + "[Market] " +
