@@ -1,1 +1,3 @@
-works: true
+blacklist:
+  - DIAMOND
+  - DIAMOND_BLOCK

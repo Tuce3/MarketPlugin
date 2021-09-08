@@ -1,5 +1,5 @@
 name: Market
-version: 1.2
+version: 0.2
 author: Tuce
 main: me.tuce.firstplugin.Main
 api-version: 1.17
