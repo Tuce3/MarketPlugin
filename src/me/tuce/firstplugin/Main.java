@@ -3,7 +3,6 @@ package me.tuce.firstplugin;
 import me.tuce.firstplugin.commands.Buy;
 import me.tuce.firstplugin.commands.Cost;
 import me.tuce.firstplugin.commands.SellItem;
-import me.tuce.firstplugin.helper.InputCheck;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,8 +29,8 @@ public class Main extends JavaPlugin implements Listener {
         SellItem sellItem = new SellItem(this);
         this.getCommand("sell").setExecutor(sellItem);
         this.getCommand("sellhstack").setExecutor(sellItem);
-        this.getCommand("cost").setExecutor(new Cost());
-        this.getCommand("buy").setExecutor(new Buy());
+        this.getCommand("cost").setExecutor(new Cost(this));
+        this.getCommand("buy").setExecutor(new Buy(this));
 
         // Check whether all blacklist item names are correct in config.yml
         List<?> blacklist = this.getCustomConfig().getList("blacklist");

@@ -1,6 +1,7 @@
 package me.tuce.firstplugin.commands;
 
 import me.tuce.firstplugin.ItemsOnSale;
+import me.tuce.firstplugin.Main;
 import me.tuce.firstplugin.SellingItem;
 import me.tuce.firstplugin.helper.*;
 import org.bukkit.Bukkit;
@@ -16,10 +17,27 @@ import java.util.*;
 
 public class Buy implements CommandExecutor {
     final static int MIN_ARGS = 2;
+
+
+    private final Main plugin;
+    public Buy(Main plugin){
+        this.plugin = plugin;
+    }
+
+
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (commandSender instanceof Player){
             Player player = (Player)commandSender;
+
+            if (plugin.getCustomConfig().getBoolean("commands.buy.permission-required") && !player.hasPermission(plugin.getCustomConfig().getString("commands.buy.permission-node"))){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You don't have permission to buy on market!"
+                );
+                return true;
+            }
+
 
             if (args.length < MIN_ARGS){
                 player.sendMessage(

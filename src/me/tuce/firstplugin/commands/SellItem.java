@@ -34,6 +34,14 @@ public class SellItem implements CommandExecutor {
         if(commandSender instanceof Player){
             Player player = (Player)commandSender;
 
+            if (plugin.getCustomConfig().getBoolean("commands.sell.permission-required") && !player.hasPermission(plugin.getCustomConfig().getString("commands.sell.permission-node"))){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You don't have permission to sell on market!"
+                );
+                return true;
+            }
+
             if (args.length < MIN_ARGS){
                 player.sendMessage(
                         ChatColor.YELLOW + "[Market] " +

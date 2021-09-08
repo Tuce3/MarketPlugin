@@ -1,5 +1,6 @@
 package me.tuce.firstplugin.commands;
 
+import me.tuce.firstplugin.Main;
 import me.tuce.firstplugin.SellingItem;
 import me.tuce.firstplugin.helper.InputCheck;
 import org.bukkit.ChatColor;
@@ -17,10 +18,23 @@ import java.util.HashMap;
 public class Cost implements CommandExecutor {
     final static int MIN_ARGS = 1;
 
+    private final Main plugin;
+    public Cost(Main plugin){
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (commandSender instanceof Player){
             Player player = (Player)commandSender;
+
+            if (plugin.getCustomConfig().getBoolean("commands.cost.permission-required") && !player.hasPermission(plugin.getCustomConfig().getString("commands.cost.permission-node"))){
+                player.sendMessage(
+                        ChatColor.YELLOW + "[Market] " +
+                                ChatColor.WHITE + "You don't have permission to cost on market!"
+                );
+                return true;
+            }
 
             if (args.length < MIN_ARGS){
                 player.sendMessage(
