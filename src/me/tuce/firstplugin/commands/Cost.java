@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Cost implements CommandExecutor {
     final static int MIN_ARGS = 1;
@@ -68,6 +69,19 @@ public class Cost implements CommandExecutor {
                     stack = "";
                 }
 
+                // Checking how much items are in stock
+                int amount = 0;
+                for (Iterator<SellingItem> iter = map.get(key).iterator(); iter.hasNext(); ) {
+                    SellingItem it = iter.next();
+                    if (it.stack == sellingItem.stack)
+                        amount += it.amount;
+                    else if(it.stack > sellingItem.stack)
+                        amount += it.amount * 2;
+                    else
+                        amount += it.amount / 2;
+
+                }
+
                 // Tell player how much the cheapest item is
                 player.sendMessage(
                         ChatColor.YELLOW + "[Market] " +
@@ -75,7 +89,7 @@ public class Cost implements CommandExecutor {
                                 ChatColor.GREEN + stack + sellingItem.material +
                                 ChatColor.WHITE + " for " +
                                 ChatColor.BLUE + sellingItem.priceAmount + " " + sellingItem.priceItem +
-                                ChatColor.WHITE + " (" + sellingItem.amount + " in stock).");
+                                ChatColor.WHITE + " (" + amount + " in stock).");
             }
             else{
                 // Item that player wants is not sold by anyone
