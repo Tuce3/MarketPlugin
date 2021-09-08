@@ -25,6 +25,11 @@ public class Main extends JavaPlugin implements Listener {
 
         createCustomConfig();
 
+        // check if plugin is disabled
+        if (!this.getCustomConfig().getBoolean("enable-plugin")){
+                this.getPluginLoader().disablePlugin(this);
+        }
+
         // Set command executors
         SellItem sellItem = new SellItem(this);
         this.getCommand("sell").setExecutor(sellItem);

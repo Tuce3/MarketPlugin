@@ -1,3 +1,5 @@
+enable-plugin: true
+
 blacklist:
   - DIAMOND
   - DIAMOND_BLOCK
