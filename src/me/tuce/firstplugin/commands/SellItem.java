@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -99,6 +100,40 @@ public class SellItem implements CommandExecutor {
                                     ChatColor.WHITE + "are accepted as price!"
                     );
                     return false;
+                }
+            }
+
+            // Check whether such sell price is allowed
+            ConfigurationSection cs = plugin.getCustomConfig().getConfigurationSection("price");
+            if (cs.contains(material.name())) {
+                cs = plugin.getCustomConfig().getConfigurationSection("price." + material.name());
+                if (cs.contains("min")){
+                    double min = (double)cs.getInt("min");
+                    min = (sellMaterial == Material.DIAMOND) ? min : min/9;
+                    if (min > sellPrice) {
+                        player.sendMessage(
+                                ChatColor.YELLOW + "[Market]" +
+                                        ChatColor.WHITE + " Minimum sell price for " +
+                                        ChatColor.BLUE + material.name() +
+                                        ChatColor.WHITE + " is " +
+                                        ChatColor.BLUE + min + " " + sellMaterial
+                        );
+                        return true;
+                    }
+                }
+                if (cs.contains("max")) {
+                    double max = (double)cs.getInt("max");
+                    max = (sellMaterial == Material.DIAMOND) ? max : max/9;
+                    if (max < sellPrice) {
+                        player.sendMessage(
+                                ChatColor.YELLOW + "[Market]" +
+                                        ChatColor.WHITE + " Maximum sell price for " +
+                                        ChatColor.BLUE + material.name() +
+                                        ChatColor.WHITE + " is " +
+                                        ChatColor.BLUE + max + " " + sellMaterial
+                        );
+                        return true;
+                    }
                 }
             }
 

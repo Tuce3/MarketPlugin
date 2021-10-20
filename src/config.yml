@@ -14,3 +14,10 @@ commands:
   buy:
     permission-required: false
     permission-node: "market.buy"
+
+price: #min and max prices of items in diamonds(it is calculated automatically for diamond_blocks)
+  EXAMPLE1: # Item name
+    min: 2
+    max: 5
+  EXAMPLE2:
+    max: 3 # you can also only put min or max

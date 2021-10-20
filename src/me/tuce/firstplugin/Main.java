@@ -12,8 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class Main extends JavaPlugin implements Listener {
 
