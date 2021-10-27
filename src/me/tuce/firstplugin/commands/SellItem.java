@@ -135,6 +135,21 @@ public class SellItem implements CommandExecutor {
                         return true;
                     }
                 }
+            }else{
+                // Check whether sell price is higher than default max price
+                int price = (sellMaterial == Material.DIAMOND) ? sellPrice : sellPrice/9;
+                int maxPrice = plugin.getCustomConfig().getInt("max-price");
+                if (price > maxPrice) {
+                    maxPrice = (sellMaterial == Material.DIAMOND) ? maxPrice : maxPrice/9;
+                    player.sendMessage(
+                            ChatColor.YELLOW + "[Market]" +
+                                    ChatColor.WHITE + "Maximum sell price for " +
+                                    ChatColor.BLUE + material.name() +
+                                    ChatColor.WHITE + " is " +
+                                    ChatColor.BLUE + maxPrice + " " + sellMaterial
+                    );
+                    return true;
+                }
             }
 
             Inventory inventory = player.getInventory();

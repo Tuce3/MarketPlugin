@@ -15,9 +15,11 @@ commands:
     permission-required: false
     permission-node: "market.buy"
 
-price: #min and max prices of items in diamonds(it is calculated automatically for diamond_blocks)
+max-price: 128 # Default max price for all items in diamonds(automatically calculated for diamond_blocks)
+
+price: # Min and max prices of items in diamonds(it is calculated automatically for diamond_blocks)
   EXAMPLE1: # Item name
-    min: 2
-    max: 5
+    min: 2 # Min price can't be smaller than 1
+    max: 5 # Max price can be bigger than default max price
   EXAMPLE2:
-    max: 3 # you can also only put min or max
+    max: 3 # You can also only put min or max
