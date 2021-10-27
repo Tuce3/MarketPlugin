@@ -30,9 +30,11 @@ public class Buy implements CommandExecutor {
         if (commandSender instanceof Player){
             Player player = (Player)commandSender;
 
+            String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
+
             if (plugin.getCustomConfig().getBoolean("commands.buy.permission-required") && !player.hasPermission(plugin.getCustomConfig().getString("commands.buy.permission-node"))){
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
+                        prefix +
                                 ChatColor.WHITE + "You don't have permission to buy on market!"
                 );
                 return true;
@@ -40,26 +42,26 @@ public class Buy implements CommandExecutor {
 
 
             if (args.length < MIN_ARGS){
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You haven't entered enough arguments!"
-                );
+                String notEnoughArgsMessage = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.not-enough-arguments"));
+                player.sendMessage(prefix + notEnoughArgsMessage);
                 return false;
             }
 
             // Check whether player entered valid amount of items to buy
             int amountToBuy = InputCheck.checkAmount(args[0]);
             if (amountToBuy < 1){
-                player.sendMessage(ChatColor.YELLOW + "[Market] " +
-                        ChatColor.WHITE + "You entered an invalid amount of items to buy!");
+                player.sendMessage(
+                        prefix +
+                                ChatColor.WHITE + "You entered an invalid amount of items to buy!"
+                );
                 return false;
             }
 
             // Check whether player entered valid name of item
             Material material = InputCheck.checkMaterial(args[1]);
             if (material == Material.AIR){
-                player.sendMessage(ChatColor.YELLOW + "[Market] " +
-                        ChatColor.WHITE + "You entered an invalid name for item.");
+                String improperNameOfItem = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.improper-item-name"));
+                player.sendMessage(prefix + improperNameOfItem);
                 return false;
             }
 
@@ -142,7 +144,7 @@ public class Buy implements CommandExecutor {
                 if (amountToBuy > 0){
                     int itemsInStock = ENTERED_AMOUNT_TO_BUY - amountToBuy;
                     player.sendMessage(
-                            ChatColor.YELLOW + "[Market] " +
+                            prefix +
                                     ChatColor.WHITE + "There is only " +
                                     ChatColor.GREEN + itemsInStock + " " + material +
                                     ChatColor.WHITE + " in stock at the moment."
@@ -153,7 +155,7 @@ public class Buy implements CommandExecutor {
             else{
                 // Tell player there aren't any items in stock
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
+                        prefix +
                                 ChatColor.WHITE + "No one is selling " +
                                 ChatColor.GREEN + material +
                                 ChatColor.WHITE + " at the moment."
@@ -173,7 +175,7 @@ public class Buy implements CommandExecutor {
                 final boolean hasEnoughDiamondBlocks = player.getInventory().contains(Material.DIAMOND_BLOCK, cost.diamond_block);
                 if (!hasEnoughDiamonds && !hasEnoughDiamondBlocks){
                     player.sendMessage(
-                            ChatColor.YELLOW + "[Market] " +
+                            prefix +
                                     ChatColor.WHITE + "You don't have enough " +
                                     ChatColor.BLUE + Material.DIAMOND +
                                     ChatColor.WHITE + " and " +
@@ -196,7 +198,7 @@ public class Buy implements CommandExecutor {
                     }
 
                     player.sendMessage(
-                            ChatColor.YELLOW + "[Market] " +
+                            prefix +
                                     ChatColor.WHITE + "You don't have enough " +
                                     ChatColor.BLUE + Material.DIAMOND +
                                     ChatColor.WHITE + "!"
@@ -216,7 +218,7 @@ public class Buy implements CommandExecutor {
                     }
 
                     player.sendMessage(
-                            ChatColor.YELLOW + "[Market] " +
+                            prefix +
                                     ChatColor.WHITE + "You don't have enough " +
                                     ChatColor.BLUE + Material.DIAMOND_BLOCK +
                                     ChatColor.WHITE + "!"
@@ -231,10 +233,12 @@ public class Buy implements CommandExecutor {
     private void buy(Player player, Material material, int ENTERED_AMOUNT_TO_BUY, int stack, PriceToPay cost, HashMap<String, PriceToPay> sellers){
         boolean hasSpace = CheckInventorySpace.checkSpace(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
 
+        String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
+
         // Tell player that he doesn't have enough inventory space
         if (!hasSpace){
             player.sendMessage(
-                    ChatColor.YELLOW + "[Market] " +
+                    prefix +
                             ChatColor.WHITE + "You don't have enough inventory space!"
             );
         }
@@ -269,7 +273,7 @@ public class Buy implements CommandExecutor {
 
         // Tell player what he bought and for how much
         player.sendMessage(
-                ChatColor.YELLOW + "[Market] " +
+                prefix +
                         ChatColor.WHITE + "You bought " +
                         ChatColor.GREEN + ENTERED_AMOUNT_TO_BUY + " " + material +
                         ChatColor.WHITE + " for " +

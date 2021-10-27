@@ -29,28 +29,26 @@ public class Cost implements CommandExecutor {
         if (commandSender instanceof Player){
             Player player = (Player)commandSender;
 
+            String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
+
             if (plugin.getCustomConfig().getBoolean("commands.cost.permission-required") && !player.hasPermission(plugin.getCustomConfig().getString("commands.cost.permission-node"))){
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You don't have permission to cost on market!"
+                        prefix +
+                                ChatColor.WHITE + "You don't have permission for cost command on market!"
                 );
                 return true;
             }
 
             if (args.length < MIN_ARGS){
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You haven't entered enough arguments!"
-                );
+                String notEnoughArgsMessage = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.not-enough-arguments"));
+                player.sendMessage(prefix + notEnoughArgsMessage);
                 return false;
             }
 
             Material key = InputCheck.checkMaterial(args[0]);
             if (key == Material.AIR){
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You didn't input name of item correctly!"
-                );
+                String improperNameOfItem = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.improper-item-name"));
+                player.sendMessage(prefix + improperNameOfItem);
                 return false;
             }
 
@@ -84,7 +82,7 @@ public class Cost implements CommandExecutor {
 
                 // Tell player how much the cheapest item is
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
+                        prefix +
                                 ChatColor.WHITE + sellingItem.name + " is selling " +
                                 ChatColor.GREEN + stack + sellingItem.material +
                                 ChatColor.WHITE + " for " +
@@ -94,7 +92,7 @@ public class Cost implements CommandExecutor {
             else{
                 // Item that player wants is not sold by anyone
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
+                        prefix +
                                 ChatColor.WHITE + "No one is selling " +
                                 ChatColor.GREEN + key +
                                 ChatColor.WHITE + " at the moment.");

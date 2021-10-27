@@ -35,26 +35,26 @@ public class SellItem implements CommandExecutor {
         if(commandSender instanceof Player){
             Player player = (Player)commandSender;
 
+            // Prefix used for messages
+            String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
+
             if (plugin.getCustomConfig().getBoolean("commands.sell.permission-required") && !player.hasPermission(plugin.getCustomConfig().getString("commands.sell.permission-node"))){
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You don't have permission to sell on market!"
-                );
+                String noPermissionMessage = ChatColor.translateAlternateColorCodes('&',plugin.getCustomConfig().getString("messages.no-sell-permission"));
+                player.sendMessage(prefix + noPermissionMessage);
                 return true;
             }
 
             if (args.length < MIN_ARGS){
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You haven't entered enough arguments!"
-                );
+                String notEnoughArgsMessage = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.not-enough-arguments"));
+                player.sendMessage(prefix + notEnoughArgsMessage);
                 return false;
             }
 
             // Check whether player has inputted count of item to sell properly
             int sellItemCount = InputCheck.checkAmount(args[0]);
             if (sellItemCount < 1){
-                player.sendMessage(ChatColor.YELLOW + "[Market]" + ChatColor.WHITE + " You didn't input count number correctly");
+                String improperItemNumCount = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.improper-item-number-count"));
+                player.sendMessage(prefix + improperItemNumCount);
                 return false;
             }
 
@@ -63,24 +63,22 @@ public class SellItem implements CommandExecutor {
             List<?> blacklist = plugin.getCustomConfig().getList("blacklist");
             if (blacklist.contains(material.name())){
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
+                        prefix +
                                 ChatColor.BLUE + material +
                                 ChatColor.WHITE + " can't be sold."
                 );
                 return true;
             }
             if (material == Material.AIR){
-                player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
-                                ChatColor.WHITE + "You didn't input name of item to sell correctly!"
-                );
+                String improperNameOfItem = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.improper-item-name"));
+                player.sendMessage(prefix + improperNameOfItem);
                 return false;
             }
 
             // Check whether player has inputted sell price correctly
             int sellPrice = InputCheck.checkAmount(args[2]);
             if (sellPrice < 1){
-                player.sendMessage(ChatColor.YELLOW + "[Market]" + ChatColor.WHITE + " You didn't input sell price correctly");
+                player.sendMessage(prefix + ChatColor.WHITE + "You didn't input sell price correctly");
                 return false;
             }
 
@@ -92,7 +90,7 @@ public class SellItem implements CommandExecutor {
                 }
                 else{
                     player.sendMessage(
-                            ChatColor.YELLOW + "[Market] " +
+                            prefix +
                                     ChatColor.WHITE + "Only " +
                                     ChatColor.BLUE + "DIAMONDS " +
                                     ChatColor.WHITE + "and " +
@@ -112,8 +110,8 @@ public class SellItem implements CommandExecutor {
                     min = (sellMaterial == Material.DIAMOND) ? min : min/9;
                     if (min > sellPrice) {
                         player.sendMessage(
-                                ChatColor.YELLOW + "[Market]" +
-                                        ChatColor.WHITE + " Minimum sell price for " +
+                                prefix +
+                                        ChatColor.WHITE + "Minimum sell price for " +
                                         ChatColor.BLUE + material.name() +
                                         ChatColor.WHITE + " is " +
                                         ChatColor.BLUE + min + " " + sellMaterial
@@ -126,8 +124,8 @@ public class SellItem implements CommandExecutor {
                     max = (sellMaterial == Material.DIAMOND) ? max : max/9;
                     if (max < sellPrice) {
                         player.sendMessage(
-                                ChatColor.YELLOW + "[Market]" +
-                                        ChatColor.WHITE + " Maximum sell price for " +
+                                prefix +
+                                        ChatColor.WHITE + "Maximum sell price for " +
                                         ChatColor.BLUE + material.name() +
                                         ChatColor.WHITE + " is " +
                                         ChatColor.BLUE + max + " " + sellMaterial
@@ -142,7 +140,7 @@ public class SellItem implements CommandExecutor {
                 if (price > maxPrice) {
                     maxPrice = (sellMaterial == Material.DIAMOND) ? maxPrice : maxPrice/9;
                     player.sendMessage(
-                            ChatColor.YELLOW + "[Market]" +
+                            prefix +
                                     ChatColor.WHITE + "Maximum sell price for " +
                                     ChatColor.BLUE + material.name() +
                                     ChatColor.WHITE + " is " +
@@ -165,14 +163,13 @@ public class SellItem implements CommandExecutor {
             else if (s.equals("sellhstack")){
                 // Can't sell half stack of item whose max stack is 1
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market] " +
+                        prefix +
                                 ChatColor.WHITE + "Can't sell " +
                                 ChatColor.GREEN + material +
                                 ChatColor.WHITE + " as half stack!"
                 );
                 return true;
             }
-            System.out.println("passed check for command name");
 
             // Check whether player has that amount of item
             if (inventory.contains(material, sellItemCount * stack)){
@@ -188,7 +185,7 @@ public class SellItem implements CommandExecutor {
             }
             else{
                 player.sendMessage(
-                        ChatColor.YELLOW + "[Market]" +
+                        prefix +
                                 ChatColor.WHITE + " You don't have enough amount of " +
                                 ChatColor.GREEN + material +
                                 ChatColor.WHITE + "!");

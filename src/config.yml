@@ -1,9 +1,5 @@
 enable-plugin: true
 
-blacklist:
-  - DIAMOND
-  - DIAMOND_BLOCK
-
 commands:
   sell:
     permission-required: true
@@ -14,6 +10,17 @@ commands:
   buy:
     permission-required: false
     permission-node: "market.buy"
+
+blacklist: # Items that can't be sold on market
+  - DIAMOND
+  - DIAMOND_BLOCK
+
+messages:
+  prefix: "&e[Market] "
+  no-sell-permission: "&fYou don't have permission to sell on market!"
+  not-enough-arguments: "&fYou haven't entered enough arguments!"
+  improper-item-number-count: "&fYou didn't input count number correctly!"
+  improper-item-name: "&fYou didn't input name of item to sell correctly!"
 
 max-price: 128 # Default max price for all items in diamonds(automatically calculated for diamond_blocks)
 
