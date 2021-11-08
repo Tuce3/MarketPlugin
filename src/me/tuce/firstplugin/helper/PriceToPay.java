@@ -1,8 +1,5 @@
 package me.tuce.firstplugin.helper;
 
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-
 public class PriceToPay {
     public int diamond;
     public int diamond_block;

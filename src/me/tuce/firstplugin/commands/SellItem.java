@@ -1,8 +1,7 @@
 package me.tuce.firstplugin.commands;
 
 import me.tuce.firstplugin.Main;
-import me.tuce.firstplugin.helper.InputCheck;
-import me.tuce.firstplugin.helper.TakeItems;
+import me.tuce.firstplugin.helper.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -12,14 +11,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import me.tuce.firstplugin.ItemsOnSale;
 import me.tuce.firstplugin.SellingItem;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
 public class SellItem implements CommandExecutor {
-    ItemsOnSale itemsOnSale = new ItemsOnSale();
     final static int MIN_ARGS = 3;
 
 
@@ -173,15 +170,16 @@ public class SellItem implements CommandExecutor {
 
             // Check whether player has that amount of item
             if (inventory.contains(material, sellItemCount * stack)){
-                System.out.println("Entered if ");
-
                 SellingItem sellingItem = new SellingItem(player.getName(), material, sellItemCount, sellMaterial, sellPrice, stack);
 
-                // Remove items that player wants to sell from his inventory
-                TakeItems.take(inventory, material, sellItemCount * stack);
+                // Check whether player really wants to sell with a prompt
+                Prompt prompt = new Prompt(PromptType.SELL, sellingItem);
 
-                // Put item on sale
-                itemsOnSale.addNewItemOnSale(sellingItem);
+                // If player already has a prompt remove it
+                Prompts.RemovePrompt(player);
+
+                // Add the new prompt
+                Prompts.AddPrompt(player, prompt);
             }
             else{
                 player.sendMessage(

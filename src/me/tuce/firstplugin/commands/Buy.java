@@ -4,7 +4,6 @@ import me.tuce.firstplugin.ItemsOnSale;
 import me.tuce.firstplugin.Main;
 import me.tuce.firstplugin.SellingItem;
 import me.tuce.firstplugin.helper.*;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -241,44 +240,11 @@ public class Buy implements CommandExecutor {
                     prefix +
                             ChatColor.WHITE + "You don't have enough inventory space!"
             );
+            return;
         }
 
-        // Give buyer items
-        GiveItems.give(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
-
-        // Take buyer's diamonds/diamond_blocks
-        TakeItems.take(player.getInventory(), Material.DIAMOND, cost.diamond);
-        TakeItems.take(player.getInventory(), Material.DIAMOND_BLOCK, cost.diamond_block);
-
-        // Remove items from sale
-        ItemsOnSale.removeItemFromSale(material, ENTERED_AMOUNT_TO_BUY, stack);
-
-        // Give sellers their diamonds/diamond_blocks
-        for (HashMap.Entry<String, PriceToPay> entry : sellers.entrySet()){
-            Player seller = Bukkit.getPlayer(entry.getKey());
-            if (seller == null)
-                continue;
-            GiveItems.give(seller.getInventory(), Material.DIAMOND, entry.getValue().diamond);
-            GiveItems.give(seller.getInventory(), Material.DIAMOND_BLOCK, entry.getValue().diamond_block);
-        }
-
-        // Check whether player paid in diamonds or diamond_blocks or both
-        String paid = "";
-        if (cost.diamond > 0 && cost.diamond_block > 0)
-            paid = paid + cost.diamond + " " + Material.DIAMOND + ChatColor.WHITE + " and " + ChatColor.BLUE + cost.diamond_block + " " + Material.DIAMOND_BLOCK;
-        else if(cost.diamond > 0)
-            paid = paid + cost.diamond + " " + Material.DIAMOND;
-        else
-            paid = paid + cost.diamond_block + " " + Material.DIAMOND_BLOCK;
-
-        // Tell player what he bought and for how much
-        player.sendMessage(
-                prefix +
-                        ChatColor.WHITE + "You bought " +
-                        ChatColor.GREEN + ENTERED_AMOUNT_TO_BUY + " " + material +
-                        ChatColor.WHITE + " for " +
-                        ChatColor.BLUE + paid +
-                        ChatColor.WHITE + "!"
-        );
+        // Prompt player to confirm buying items
+        Prompt prompt = new Prompt(PromptType.BUY, material, ENTERED_AMOUNT_TO_BUY, stack, cost, sellers);
+        Prompts.AddPrompt(player, prompt);
     }
 }
