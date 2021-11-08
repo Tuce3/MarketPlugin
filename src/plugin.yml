@@ -1,5 +1,5 @@
 name: Market
-version: 0.5
+version: 0.5.1
 author: Tuce
 main: me.tuce.firstplugin.Main
 api-version: 1.17
@@ -16,9 +16,9 @@ commands:
   buy:
     description: Buys the least expensive item on sale
     usage: /<command> [CountOfItem] [ItemName] [stack/halfstack](default stack)
-  yesMarket:
+  y:
     description: Confirm that you want to buy/sell
     usage: /<command>
-  noMarket:
+  n:
     description: Confirm that you don't want to buy/sell
     usage: /<command>

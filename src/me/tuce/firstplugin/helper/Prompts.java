@@ -23,7 +23,7 @@ public class Prompts {
                             ChatColor.BLUE + prompt.sellingItem.stack + "x " + prompt.sellingItem.material +
                             ChatColor.WHITE + " for " +
                             ChatColor.BLUE + prompt.sellingItem.priceAmount + " " + prompt.sellingItem.priceItem +
-                            ChatColor.WHITE + " each?(type /yes or /no)"
+                            ChatColor.WHITE + " each?(type /y for yes or /n for no)"
             );
         }else if (prompt.promptType == PromptType.BUY) {
             // Check whether player paid in diamonds or diamond_blocks or both

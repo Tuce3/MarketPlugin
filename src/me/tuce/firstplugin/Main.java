@@ -42,8 +42,8 @@ public class Main extends JavaPlugin implements Listener {
         this.getCommand("cost").setExecutor(new Cost(this));
         this.getCommand("buy").setExecutor(new Buy(this));
         Confirmation confirmation = new Confirmation(this);
-        this.getCommand("yesMarket").setExecutor(confirmation);
-        this.getCommand("noMarket").setExecutor(confirmation);
+        this.getCommand("y").setExecutor(confirmation);
+        this.getCommand("n").setExecutor(confirmation);
 
         // Check whether all blacklist item names are correct in config.yml
         List<?> blacklist = this.getCustomConfig().getList("blacklist");

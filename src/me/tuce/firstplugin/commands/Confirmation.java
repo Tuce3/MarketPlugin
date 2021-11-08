@@ -26,7 +26,7 @@ public class Confirmation implements CommandExecutor {
             // Prefix used for messages
             String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
 
-            if (s.equals("yesmarket")) {
+            if (s.equals("y")) {
                 if (!Prompts.prompts.containsKey(player.getName())) {
                     player.sendMessage(
                             prefix +
@@ -93,7 +93,7 @@ public class Confirmation implements CommandExecutor {
                     );
                 }
                 return true;
-            }else if (s.equals("nomarket")) {
+            }else if (s.equals("n")) {
                 if (!Prompts.prompts.containsKey(player.getName())) {
                     player.sendMessage(
                             prefix +
