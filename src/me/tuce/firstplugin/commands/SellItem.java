@@ -175,9 +175,6 @@ public class SellItem implements CommandExecutor {
                 // Check whether player really wants to sell with a prompt
                 Prompt prompt = new Prompt(PromptType.SELL, sellingItem);
 
-                // If player already has a prompt remove it
-                Prompts.RemovePrompt(player);
-
                 // Add the new prompt
                 Prompts.AddPrompt(player, prompt);
             }
