@@ -12,6 +12,8 @@ public class Prompts {
     private static Main plugin;
     public static HashMap<String, Prompt> prompts = new HashMap<>();
     public static void AddPrompt(Player player, Prompt prompt) {
+        RemovePrompt(player);
+
         // Prefix used for messages
         String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
         prompts.put(player.getName(), prompt);
@@ -51,6 +53,7 @@ public class Prompts {
         if (prompts.containsKey(player.getName()))
             prompts.remove(player.getName());
     }
+
     public static void SetPlugin(Main pluginToSet) {
         plugin = pluginToSet;
     }
