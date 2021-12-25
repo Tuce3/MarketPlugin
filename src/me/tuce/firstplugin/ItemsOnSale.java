@@ -11,7 +11,7 @@ public class ItemsOnSale {
     public static HashMap<Material, ArrayList<SellingItem>> map = new HashMap<>();
 
     // Comparator for SellingItem class so that it can be sorted for lowest price
-    Comparator<SellingItem> smallestPrice = new Comparator<SellingItem>() {
+    static Comparator<SellingItem> smallestPrice = new Comparator<SellingItem>() {
         @Override
         public int compare(SellingItem o1, SellingItem o2) {
             int price1 = (o1.priceItem == Material.DIAMOND_BLOCK) ? o1.priceAmount * 9 : o1.priceAmount;
@@ -21,7 +21,7 @@ public class ItemsOnSale {
     };
 
     // Put new item on the market
-    public void addNewItemOnSale(SellingItem item){
+    public static void addNewItemOnSale(SellingItem item){
         if (map.containsKey(item.material)){
             ArrayList<SellingItem> list = map.get(item.material);
             list.add(item);
