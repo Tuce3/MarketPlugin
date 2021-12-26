@@ -11,7 +11,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.sql.PreparedStatement;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class Confirmation implements CommandExecutor {
 
@@ -26,7 +28,7 @@ public class Confirmation implements CommandExecutor {
             // Prefix used for messages
             String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));
 
-            if (s.equals("y")) {
+            if (s.equals("myes")) {
                 if (!Prompts.prompts.containsKey(player.getName())) {
                     player.sendMessage(
                             prefix +
@@ -65,10 +67,27 @@ public class Confirmation implements CommandExecutor {
                     ItemsOnSale.removeItemFromSale(prompt.material, prompt.ENTERED_AMOUNT_TO_BUY, prompt.stack);
 
                     // Give sellers their diamonds/diamond_blocks
-                    for (HashMap.Entry<String, PriceToPay> entry : prompt.sellers.entrySet()){
-                        Player seller = Bukkit.getPlayer(entry.getKey());
-                        if (seller == null)
+                    MySQL database = plugin.getDatabase();
+                    for (HashMap.Entry<UUID, PriceToPay> entry : prompt.sellers.entrySet()){
+                        UUID uuid = entry.getKey();
+                        Player seller = Bukkit.getPlayer(uuid);
+                        if (seller == null) {
+                            // If player is offline save what items to give him
+                            if (plugin.getCustomConfig().getBoolean("database-info.enabled")){
+                                try {
+                                    PreparedStatement ps = database.getConnection().prepareStatement(
+                                            "insert into offlineItems(uuid, diamond, diamond_block) values(?, ?, ?))"
+                                    );
+                                    ps.setString(1, uuid.toString());
+                                    ps.setInt(2, entry.getValue().diamond);
+                                    ps.setInt(3, entry.getValue().diamond_block);
+                                    ps.executeUpdate();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             continue;
+                        }
                         GiveItems.give(seller.getInventory(), Material.DIAMOND, entry.getValue().diamond);
                         GiveItems.give(seller.getInventory(), Material.DIAMOND_BLOCK, entry.getValue().diamond_block);
                     }
@@ -93,7 +112,7 @@ public class Confirmation implements CommandExecutor {
                     );
                 }
                 return true;
-            }else if (s.equals("n")) {
+            }else if (s.equals("mno")) {
                 if (!Prompts.prompts.containsKey(player.getName())) {
                     player.sendMessage(
                             prefix +

@@ -15,6 +15,14 @@ blacklist: # Items that can't be sold on market
   - DIAMOND
   - DIAMOND_BLOCK
 
+database-info: # Database info
+  enabled: false
+  host: "localhost"
+  port: "3306"
+  database: "marketdata"
+  username: "root"
+  password: "admin"
+
 messages:
   prefix: "&e[Market] "
   no-sell-permission: "&fYou don't have permission to sell on market!"

@@ -77,7 +77,7 @@ public class Buy implements CommandExecutor {
             }
 
             final int ENTERED_AMOUNT_TO_BUY = amountToBuy;
-            HashMap<String, PriceToPay> sellers = new HashMap<>();
+            HashMap<UUID, PriceToPay> sellers = new HashMap<>();
             if (ItemsOnSale.map.containsKey(material)){
                 // Get how much you need to pay each seller
                 ArrayList<SellingItem> list = ItemsOnSale.map.get(material);
@@ -85,8 +85,8 @@ public class Buy implements CommandExecutor {
                 Iterator<SellingItem> it = list.iterator();
                 while (it.hasNext()){
                     SellingItem item = it.next();
-                    if (!sellers.containsKey(item.name))
-                        sellers.put(item.name, new PriceToPay(0, 0));
+                    if (!sellers.containsKey(item.uuid))
+                        sellers.put(item.uuid, new PriceToPay(0, 0));
 
                     // Multipliers used to convert prices and amount of half stacks to full stacks and other way around
                     float stackMultiplier = (float) item.stack/stack;
@@ -122,7 +122,7 @@ public class Buy implements CommandExecutor {
                                 increase.diamond_block = (int) (item.priceAmount * amountToBuy * buyMultiplier);
                             amountToBuy = 0;
                         }
-                        sellers.put(item.name, PriceToPay.add(sellers.get(item.name), increase));
+                        sellers.put(item.uuid, PriceToPay.add(sellers.get(item.uuid), increase));
                         cost = PriceToPay.add(cost, increase);
                     }
                     else{
@@ -131,7 +131,7 @@ public class Buy implements CommandExecutor {
                             increase = new PriceToPay(item.priceAmount * item.amount, 0);
                         else
                             increase = new PriceToPay(0, item.priceAmount * item.amount);
-                        sellers.put(item.name, PriceToPay.add(sellers.get(item.name), increase));
+                        sellers.put(item.uuid, PriceToPay.add(sellers.get(item.uuid), increase));
                         cost = PriceToPay.add(cost, increase);
                         amountToBuy -= amount;
                     }
@@ -229,7 +229,7 @@ public class Buy implements CommandExecutor {
         return false;
     }
 
-    private void buy(Player player, Material material, int ENTERED_AMOUNT_TO_BUY, int stack, PriceToPay cost, HashMap<String, PriceToPay> sellers){
+    private void buy(Player player, Material material, int ENTERED_AMOUNT_TO_BUY, int stack, PriceToPay cost, HashMap<UUID, PriceToPay> sellers){
         boolean hasSpace = CheckInventorySpace.checkSpace(player.getInventory(), material, ENTERED_AMOUNT_TO_BUY * stack);
 
         String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getCustomConfig().getString("messages.prefix"));

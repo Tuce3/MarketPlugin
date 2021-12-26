@@ -1,9 +1,8 @@
 package me.tuce.firstplugin;
 
-import me.tuce.firstplugin.commands.Buy;
-import me.tuce.firstplugin.commands.Confirmation;
-import me.tuce.firstplugin.commands.Cost;
-import me.tuce.firstplugin.commands.SellItem;
+import me.tuce.firstplugin.commands.*;
+import me.tuce.firstplugin.helper.MySQL;
+import me.tuce.firstplugin.helper.PlayerJoin;
 import me.tuce.firstplugin.helper.Prompt;
 import me.tuce.firstplugin.helper.Prompts;
 import org.bukkit.Material;
@@ -11,6 +10,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -21,6 +21,7 @@ public class Main extends JavaPlugin implements Listener {
 
     private File customConfigFile;
     private FileConfiguration customConfig;
+    private MySQL database;
 
     @Override
     public void onEnable(){
@@ -28,31 +29,53 @@ public class Main extends JavaPlugin implements Listener {
         createCustomConfig();
 
         // check if plugin is disabled
-        if (!this.getCustomConfig().getBoolean("enable-plugin")){
+        if (!customConfig.getBoolean("enable-plugin")){
                 this.getPluginLoader().disablePlugin(this);
         }
 
         // Set plugin for prompts class
         Prompts.SetPlugin(this);
+        ItemsOnSale.setPlugin(this);
+
+        if(this.getCustomConfig().getBoolean("database-info.enabled")){
+            database = new MySQL(
+                    customConfig.getString("database-info.host"),
+                    customConfig.getString("database-info.port"),
+                    customConfig.getString("database-info.database"),
+                    customConfig.getString("database-info.username"),
+                    customConfig.getString("database-info.password")
+            );
+            try {
+                database.connect();
+                database.createTables();
+                ItemsOnSale.loadItemsOnSale();
+                this.getServer().getPluginManager().registerEvents(new PlayerJoin(this), this);
+                System.out.println("[Market] Successfully connected to database.");
+            } catch (Exception e) {
+                System.out.println("[Market] COULD NOT CONNECT TO DATABASE: Invalid database-info.");
+            }
+        }
 
         // Set command executors
         SellItem sellItem = new SellItem(this);
-        this.getCommand("sell").setExecutor(sellItem);
-        this.getCommand("sellhstack").setExecutor(sellItem);
-        this.getCommand("cost").setExecutor(new Cost(this));
-        this.getCommand("buy").setExecutor(new Buy(this));
+        this.getCommand("msell").setExecutor(sellItem);
+        this.getCommand("msellhalfstack").setExecutor(sellItem);
+        this.getCommand("mcost").setExecutor(new Cost(this));
+        this.getCommand("mbuy").setExecutor(new Buy(this));
         Confirmation confirmation = new Confirmation(this);
-        this.getCommand("y").setExecutor(confirmation);
-        this.getCommand("n").setExecutor(confirmation);
+        this.getCommand("myes").setExecutor(confirmation);
+        this.getCommand("mno").setExecutor(confirmation);
+        Collect.setPlugin(this);
+        this.getCommand("mcollect").setExecutor(new Collect());
 
         // Check whether all blacklist item names are correct in config.yml
-        List<?> blacklist = this.getCustomConfig().getList("blacklist");
+        List<?> blacklist = customConfig.getList("blacklist");
         for (ListIterator<?> it = blacklist.listIterator(); it.hasNext(); ) {
             String itemName = (String) it.next();
             try {
                 Material.valueOf(itemName);
             } catch (IllegalArgumentException argumentException) {
-                System.out.println("[Market] " + itemName + " is not a valid item(blacklist)");
+                System.out.println("[Market] " + itemName + " is not a valid item(blacklist)!");
             }
         }
 
@@ -70,6 +93,18 @@ public class Main extends JavaPlugin implements Listener {
                 }
             }
         }, 300 * 20, 300 * 20); // wait 5 minutes
+    }
+
+    @Override
+    public void onDisable(){
+        if(database != null) {
+            System.out.println("[Market] Disconnecting database.");
+            database.disconnect();
+        }
+    }
+
+    public MySQL getDatabase() {
+        return this.database;
     }
 
     public FileConfiguration getCustomConfig() {

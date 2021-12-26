@@ -3,8 +3,10 @@ package me.tuce.firstplugin.commands;
 import me.tuce.firstplugin.Main;
 import me.tuce.firstplugin.SellingItem;
 import me.tuce.firstplugin.helper.InputCheck;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -81,9 +83,10 @@ public class Cost implements CommandExecutor {
                 }
 
                 // Tell player how much the cheapest item is
+                OfflinePlayer player1 = Bukkit.getOfflinePlayer(sellingItem.uuid);
                 player.sendMessage(
                         prefix +
-                                ChatColor.WHITE + sellingItem.name + " is selling " +
+                                ChatColor.WHITE + player1.getName() + " is selling " +
                                 ChatColor.GREEN + stack + sellingItem.material +
                                 ChatColor.WHITE + " for " +
                                 ChatColor.BLUE + sellingItem.priceAmount + " " + sellingItem.priceItem +

@@ -154,10 +154,10 @@ public class SellItem implements CommandExecutor {
             final int MAX_STACK = itemStack.getMaxStackSize();
             int stack = MAX_STACK;
 
-            if (s.equals("sellhstack") && MAX_STACK > 1)
+            if (s.equals("msellhalfstack") && MAX_STACK > 1)
                 stack = MAX_STACK / 2;
 
-            else if (s.equals("sellhstack")){
+            else if (s.equals("msellhalfstack")){
                 // Can't sell half stack of item whose max stack is 1
                 player.sendMessage(
                         prefix +
@@ -170,7 +170,7 @@ public class SellItem implements CommandExecutor {
 
             // Check whether player has that amount of item
             if (inventory.contains(material, sellItemCount * stack)){
-                SellingItem sellingItem = new SellingItem(player.getName(), material, sellItemCount, sellMaterial, sellPrice, stack);
+                SellingItem sellingItem = new SellingItem(player.getUniqueId(), material, sellItemCount, sellMaterial, sellPrice, stack);
 
                 // Check whether player really wants to sell with a prompt
                 Prompt prompt = new Prompt(PromptType.SELL, sellingItem);

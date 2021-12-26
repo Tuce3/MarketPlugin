@@ -4,6 +4,7 @@ import me.tuce.firstplugin.SellingItem;
 import org.bukkit.Material;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class Prompt {
     public PromptType promptType;
@@ -17,7 +18,7 @@ public class Prompt {
     public int ENTERED_AMOUNT_TO_BUY;
     public int stack;
     public PriceToPay cost;
-    public HashMap<String, PriceToPay> sellers;
+    public HashMap<UUID, PriceToPay> sellers;
 
     // Sell prompt constructor
     public Prompt (PromptType promptType, SellingItem sellingItem) {
@@ -27,7 +28,7 @@ public class Prompt {
     }
 
     // Buy prompt constructor
-    public Prompt (PromptType promptType, Material material, int enteredAmount, int stack, PriceToPay cost, HashMap<String, PriceToPay> sellers) {
+    public Prompt (PromptType promptType, Material material, int enteredAmount, int stack, PriceToPay cost, HashMap<UUID, PriceToPay> sellers) {
         this.promptType = promptType;
         this.time = System.currentTimeMillis();
         this.material = material;
